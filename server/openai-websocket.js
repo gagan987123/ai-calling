@@ -14,6 +14,12 @@ export class OpenAIWebSocket {
     async connect() {
         return new Promise((resolve, reject) => {
             try {
+                // Set connection timeout
+                const timeout = setTimeout(() => {
+                    console.error('❌ OpenAI connection timeout');
+                    reject(new Error('Connection timeout'));
+                }, 10000);
+
                 this.ws = new WebSocket(CONFIG.OPENAI_REALTIME_URL, {
                     headers: {
                         Authorization: `Bearer ${CONFIG.OPENAI_API_KEY}`,
@@ -21,7 +27,7 @@ export class OpenAIWebSocket {
                     }
                 });
 
-                this.setupEventHandlers(resolve, reject);
+                this.setupEventHandlers(resolve, reject, timeout);
             } catch (error) {
                 console.error('❌ Failed to connect to OpenAI:', error);
                 reject(error);
@@ -29,8 +35,9 @@ export class OpenAIWebSocket {
         });
     }
 
-    setupEventHandlers(onConnected, onFailed) {
+    setupEventHandlers(onConnected, onFailed, timeout) {
         this.ws.on('open', () => {
+            clearTimeout(timeout);
             console.log('✅ Connected to the OpenAI Realtime API');
             this.ready = true;
             this.sendSessionUpdate();
@@ -41,13 +48,15 @@ export class OpenAIWebSocket {
             this.handleMessage(data);
         });
 
-        this.ws.on('close', () => {
-            console.log('🔌 OpenAI WebSocket connection closed');
+        this.ws.on('close', (event) => {
+            clearTimeout(timeout);
+            console.log(`🔌 OpenAI WebSocket connection closed — code: ${event.code}, reason: ${event.reason || 'none'}`);
             this.ready = false;
             if (this.onClose) this.onClose();
         });
 
         this.ws.on('error', (error) => {
+            clearTimeout(timeout);
             console.error('❌ Error in OpenAI WebSocket:', error);
             if (this.onError) this.onError(error);
         });
@@ -57,7 +66,7 @@ export class OpenAIWebSocket {
         const sessionUpdate = {
             type: 'session.update',
             session: {
-                turn_detection: { type: 'server_vad' },
+                turn_detection: { type: 'server_vad', silence_duration_ms: 500 },
                 input_audio_format: 'g711_ulaw',
                 output_audio_format: 'g711_ulaw',
                 voice: CONFIG.VOICE,
@@ -72,7 +81,7 @@ export class OpenAIWebSocket {
             }
         };
 
-        console.log('📤 Sending session update to OpenAI');
+        console.log('📤 Sending session update to OpenAI with G.711 audio format for Exotel');
         this.send(JSON.stringify(sessionUpdate));
     }
 
@@ -143,6 +152,16 @@ export class OpenAIWebSocket {
     send(data) {
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
             this.ws.send(data);
+        }
+    }
+
+    sendAudio(audioData) {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            const audioMessage = {
+                type: 'input_audio_buffer.append',
+                audio: audioData
+            };
+            this.send(JSON.stringify(audioMessage));
         }
     }
 

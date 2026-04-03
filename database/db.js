@@ -12,16 +12,43 @@ const DEFAULT_IDLE_TIMEOUT = 30000;
 const DEFAULT_CONNECTION_TIMEOUT = 2000;
 const QUERY_TIMEOUT = 5000;
 
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || DEFAULT_DB_PORT,
-  user: process.env.DB_USER || 'admin',
-  password: process.env.DB_PASSWORD || 'admin123',
-  database: process.env.DB_NAME || 'ai_call_center',
-  max: DEFAULT_POOL_MAX,
-  idleTimeoutMillis: DEFAULT_IDLE_TIMEOUT,
-  connectionTimeoutMillis: DEFAULT_CONNECTION_TIMEOUT,
-});
+// Check if DATABASE_URL is provided, otherwise use individual parameters
+let poolConfig;
+
+if (process.env.DATABASE_URL) {
+  // Parse DATABASE_URL for configuration
+  const dbUrl = new URL(process.env.DATABASE_URL);
+  poolConfig = {
+    host: dbUrl.hostname,
+    port: dbUrl.port || DEFAULT_DB_PORT,
+    user: dbUrl.username,
+    password: dbUrl.password,
+    database: dbUrl.pathname.substring(1), // Remove leading slash
+    max: DEFAULT_POOL_MAX,
+    idleTimeoutMillis: DEFAULT_IDLE_TIMEOUT,
+    connectionTimeoutMillis: DEFAULT_CONNECTION_TIMEOUT,
+    ssl: dbUrl.searchParams.get('sslmode') === 'disable' ? false : {
+      rejectUnauthorized: false
+    }
+  };
+} else {
+  // Use individual environment variables
+  poolConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || DEFAULT_DB_PORT,
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'password',
+    database: process.env.DB_NAME || 'heliumdb',
+    max: DEFAULT_POOL_MAX,
+    idleTimeoutMillis: DEFAULT_IDLE_TIMEOUT,
+    connectionTimeoutMillis: DEFAULT_CONNECTION_TIMEOUT,
+    ssl: process.env.DB_SSL === 'disable' ? false : {
+      rejectUnauthorized: false
+    }
+  };
+}
+
+const pool = new Pool(poolConfig);
 
 pool.on('connect', () => {
   console.log('✅ Database connected successfully');

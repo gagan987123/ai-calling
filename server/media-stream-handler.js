@@ -37,14 +37,27 @@ export class MediaStreamHandler {
 
         await openAIWs.connect();
 
-        // Handle Twilio messages
+        // Send initial greeting message
+        setTimeout(() => {
+            if (openAIWs && openAIWs.isConnected()) {
+                console.log('🎤 Sending initial greeting to OpenAI');
+                openAIWs.sendFirstMessage("Namaste! Aapka swagat hai Gagan Hospital mein. Main aapki kya madad kar sakta hoon?");
+            }
+        }, 1000);
+
+        // Handle Exotel messages
         connection.on('message', (message) => {
-            this.handleTwilioMessage(message, session, openAIWs, queuedFirstMessage);
+            this.handleExotelMessage(message, session, openAIWs, queuedFirstMessage);
         });
 
         // Handle connection close
         connection.on('close', async () => {
             await this.handleConnectionClose(session, openAIWs);
+        });
+
+        // Add ping/pong keep-alive
+        connection.on('pong', () => {
+            console.log('🏓 Received pong from client');
         });
 
         return { session, openAIWs };
@@ -64,17 +77,26 @@ export class MediaStreamHandler {
         }
     }
 
-    handleTwilioMessage(message, session, openAIWs, queuedFirstMessage) {
+    handleExotelMessage(message, session, openAIWs, queuedFirstMessage) {
         try {
             const data = JSON.parse(message);
+
+            console.log('📨 Exotel message received:', JSON.stringify(data, null, 2));
 
             if (data.event === 'start') {
                 this.handleCallStart(data, session, openAIWs);
             } else if (data.event === 'media') {
-                openAIWs.sendAudio(data.media.payload);
+                // Send audio to OpenAI
+                if (data.media && data.media.payload) {
+                    openAIWs.sendAudio(data.media.payload);
+                }
+            } else if (data.event === 'connected') {
+                console.log('✅ Exotel media stream connected');
+            } else if (data.event === 'stop') {
+                console.log('🛑 Exotel media stream stopped');
             }
         } catch (error) {
-            console.error('❌ Error parsing Twilio message:', error);
+            console.error('❌ Error parsing Exotel message:', error);
         }
     }
 

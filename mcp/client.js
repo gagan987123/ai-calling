@@ -52,11 +52,9 @@ export class MCPClient {
   getToolsForOpenAI() {
     return this.tools.map(tool => ({
       type: 'function',
-      function: {
-        name: tool.name,
-        description: tool.description,
-        parameters: tool.inputSchema,
-      },
+      name: tool.name,
+      description: tool.description,
+      parameters: tool.inputSchema,
     }));
   }
 
