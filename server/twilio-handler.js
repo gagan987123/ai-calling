@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js';
+import { CONFIG } from '../config-new.js';
 
 export class TwilioHandler {
     constructor(sessionManager) {

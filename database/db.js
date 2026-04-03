@@ -27,9 +27,7 @@ if (process.env.DATABASE_URL) {
     max: DEFAULT_POOL_MAX,
     idleTimeoutMillis: DEFAULT_IDLE_TIMEOUT,
     connectionTimeoutMillis: DEFAULT_CONNECTION_TIMEOUT,
-    ssl: dbUrl.searchParams.get('sslmode') === 'disable' ? false : {
-      rejectUnauthorized: false
-    }
+    ssl: false // Disable SSL for local/testing databases
   };
 } else {
   // Use individual environment variables
@@ -42,9 +40,7 @@ if (process.env.DATABASE_URL) {
     max: DEFAULT_POOL_MAX,
     idleTimeoutMillis: DEFAULT_IDLE_TIMEOUT,
     connectionTimeoutMillis: DEFAULT_CONNECTION_TIMEOUT,
-    ssl: process.env.DB_SSL === 'disable' ? false : {
-      rejectUnauthorized: false
-    }
+    ssl: false // Disable SSL for local/testing databases
   };
 }
 

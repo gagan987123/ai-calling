@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { CONFIG, SYSTEM_MESSAGE, LOG_EVENT_TYPES } from './config.js';
+import { CONFIG, SYSTEM_MESSAGE, LOG_EVENT_TYPES } from '../config-new.js';
 
 export class OpenAIWebSocket {
     constructor(session, onMessage, onClose, onError) {
@@ -38,7 +38,7 @@ export class OpenAIWebSocket {
     setupEventHandlers(onConnected, onFailed, timeout) {
         this.ws.on('open', () => {
             clearTimeout(timeout);
-            console.log('✅ Connected to the OpenAI Realtime API');
+            console.log('✅ OpenAI connected');
             this.ready = true;
             this.sendSessionUpdate();
             if (onConnected) onConnected();
@@ -50,7 +50,7 @@ export class OpenAIWebSocket {
 
         this.ws.on('close', (event) => {
             clearTimeout(timeout);
-            console.log(`🔌 OpenAI WebSocket connection closed — code: ${event.code}, reason: ${event.reason || 'none'}`);
+            console.log(`🔌 Closed: ${event.code}`);
             this.ready = false;
             if (this.onClose) this.onClose();
         });
@@ -66,13 +66,17 @@ export class OpenAIWebSocket {
         const sessionUpdate = {
             type: 'session.update',
             session: {
-                turn_detection: { type: 'server_vad', silence_duration_ms: 500 },
-                input_audio_format: 'g711_ulaw',
-                output_audio_format: 'g711_ulaw',
-                voice: CONFIG.VOICE,
-                instructions: SYSTEM_MESSAGE,
                 modalities: ["text", "audio"],
-                temperature: 0.7,
+                instructions: SYSTEM_MESSAGE,
+                voice: CONFIG.VOICE,
+                input_audio_format: "g711_ulaw",
+                output_audio_format: "g711_ulaw",
+                temperature: 0.8,
+                turn_detection: {
+                    type: "server_vad",
+                    silence_duration_ms: 800,
+                    threshold: 0.5
+                },
                 input_audio_transcription: {
                     "model": "whisper-1"
                 },
@@ -81,7 +85,7 @@ export class OpenAIWebSocket {
             }
         };
 
-        console.log('📤 Sending session update to OpenAI with G.711 audio format for Exotel');
+        console.log('📤 Session update sent');
         this.send(JSON.stringify(sessionUpdate));
     }
 
@@ -100,7 +104,7 @@ export class OpenAIWebSocket {
             }
         };
 
-        console.log('📤 Sending first message to OpenAI:', message);
+        console.log('📤 First message:', message.substring(0, 30) + '...');
         this.send(JSON.stringify(messageItem));
         this.send(JSON.stringify({ type: 'response.create' }));
         return true;
@@ -120,24 +124,28 @@ export class OpenAIWebSocket {
         try {
             const response = JSON.parse(data);
 
-            // Log important events
+            // Log events concisely
             if (LOG_EVENT_TYPES.includes(response.type)) {
-                console.log(`📋 OpenAI Event: ${response.type}`);
+                console.log(`📋 ${response.type}`);
             }
 
             // Handle transcription
             if (response.type === 'conversation.item.input_audio_transcription.completed' && response.transcript) {
                 const userMessage = response.transcript.trim();
                 this.session.transcript += `User: ${userMessage}\n`;
-                console.log(`👤 User (${this.session.id}): ${userMessage}`);
+                console.log(`👤 ${userMessage}`);
             }
 
             // Handle agent response
             if (response.type === 'response.done') {
                 const agentMessage = response.response.output[0]?.content?.find(content => content.transcript)?.transcript || 'Agent message not found';
                 this.session.transcript += `Agent: ${agentMessage}\n`;
-                console.log(`🤖 Agent (${this.session.id}): ${agentMessage}`);
+                console.log(`🤖 ${agentMessage}`);
             }
+
+            // Handle audio delta (skip logging for brevity)
+
+            // Handle text delta (skip logging for brevity)
 
             // Forward to handler
             if (this.onMessage) {

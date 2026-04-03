@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gagan Hospital AI - Integrated Test UI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .status {
+            background: #ecf0f1;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .status.connected {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .status.connecting {
+            background: #ffeaa7;
+            color: #f39c12;
+        }
+
+        .status.disconnected {
+            background: #ffeaa7;
+            color: #f39c12;
+        }
+
+        .status.error {
+            background: #fab1a0;
+            color: #e74c3c;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-connect {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-connect:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-connect:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-mic {
+            background: #e74c3c;
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+        }
+
+        .btn-mic:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        .btn-mic.recording {
+            background: #27ae60;
+            animation: pulse 1.5s infinite;
+        }
+
+        .btn-mic:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-send {
+            background: #27ae60;
+            color: white;
+            padding: 15px 25px;
+        }
+
+        .btn-send:hover {
+            background: #229954;
+            transform: translateY(-2px);
+        }
+
+        .btn-send:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .text-input-section {
+            margin-bottom: 20px;
+        }
+
+        .text-input-section .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .text-input-section input {
+            flex: 1;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .transcript {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .transcript h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .message.user {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .message.ai {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+
+        .message.system {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+
+        .message strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .audio-visualizer {
+            height: 60px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 10px;
+        }
+
+        .bar {
+            width: 4px;
+            background: #3498db;
+            border-radius: 2px;
+            transition: height 0.1s ease;
+        }
+
+        .settings {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .settings h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .flow-diagram {
+            background: #e8f5e8;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .flow-diagram h4 {
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .flow-step {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 2px solid #27ae60;
+            font-size: 0.9em;
+            color: #2c3e50;
+        }
+
+        .flow-arrow {
+            color: #27ae60;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Gagan Hospital AI</h1>
+            <p>Integrated Test UI - Call Flow Simulation</p>
+        </div>
+
+        <div class="flow-diagram">
+            <h4>🔄 Connection Flow</h4>
+            <div class="flow-steps">
+                <div class="flow-step">HTTP Call</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">Get WebSocket URL</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">WebSocket Connect</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">AI Conversation</div>
+            </div>
+        </div>
+
+        <div class="status disconnected" id="status">
+            <strong>Status:</strong> <span id="statusText">Disconnected</span>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-connect" id="connectBtn">Start Call Simulation</button>
+            <button class="btn btn-mic" id="micBtn" disabled>🎤</button>
+        </div>
+
+        <div class="text-input-section">
+            <div class="input-group">
+                <input type="text" id="messageInput" placeholder="Type message here (e.g., 'Mujhe doctor appointment chahiye')" />
+                <button class="btn btn-send" id="sendBtn" disabled>Send Text</button>
+            </div>
+        </div>
+
+        <div class="audio-visualizer" id="visualizer">
+            <!-- Audio bars will be generated here -->
+        </div>
+
+        <div class="transcript">
+            <h3>📝 Conversation</h3>
+            <div id="messages">
+                <div class="message system">
+                    <strong>System:</strong> Click "Start Call Simulation" to begin the call flow test
+                </div>
+            </div>
+        </div>
+
+        <div class="settings">
+            <h3>⚙️ Settings</h3>
+            <div class="input-group">
+                <label for="serverUrl">Server URL:</label>
+                <input type="text" id="serverUrl" value="http://localhost:3000" placeholder="http://localhost:3000">
+            </div>
+            <div class="input-group">
+                <label for="callerNumber">Caller Number:</label>
+                <input type="text" id="callerNumber" value="07206787371" placeholder="07206787371">
+            </div>
+            <div class="input-group">
+                <label for="callSid">Call SID:</label>
+                <input type="text" id="callSid" value="test_call_123" placeholder="test_call_123">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class IntegratedTestUI {
+            constructor() {
+                this.ws = null;
+                this.mediaRecorder = null;
+                this.audioChunks = [];
+                this.isRecording = false;
+                this.isConnecting = false;
+                this.wsUrl = null;
+                
+                this.initializeElements();
+                this.initializeEventListeners();
+                this.createVisualizer();
+            }
+
+            initializeElements() {
+                this.statusEl = document.getElementById('status');
+                this.statusTextEl = document.getElementById('statusText');
+                this.connectBtn = document.getElementById('connectBtn');
+                this.micBtn = document.getElementById('micBtn');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.messageInputEl = document.getElementById('messageInput');
+                this.messagesEl = document.getElementById('messages');
+                this.serverUrlEl = document.getElementById('serverUrl');
+                this.callerNumberEl = document.getElementById('callerNumber');
+                this.callSidEl = document.getElementById('callSid');
+                this.visualizerEl = document.getElementById('visualizer');
+            }
+
+            initializeEventListeners() {
+                this.connectBtn.addEventListener('click', () => this.startCallSimulation());
+                this.micBtn.addEventListener('click', () => this.toggleRecording());
+                this.sendBtn.addEventListener('click', () => this.sendTextMessage());
+            }
+
+            createVisualizer() {
+                for (let i = 0; i < 20; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'bar';
+                    bar.style.height = '10px';
+                    this.visualizerEl.appendChild(bar);
+                }
+            }
+
+            updateVisualizer(isActive) {
+                const bars = this.visualizerEl.querySelectorAll('.bar');
+                bars.forEach(bar => {
+                    if (isActive) {
+                        const height = Math.random() * 40 + 10;
+                        bar.style.height = `${height}px`;
+                    } else {
+                        bar.style.height = '10px';
+                    }
+                });
+            }
+
+            async startCallSimulation() {
+                this.isConnecting = true;
+                this.updateStatus('Initiating call...', 'connecting');
+                this.connectBtn.textContent = 'Connecting...';
+                this.connectBtn.disabled = true;
+
+                try {
+                    // Step 1: Make HTTP request to incoming-call endpoint
+                    const response = await this.makeIncomingCallRequest();
+                    
+                    if (response.ok) {
+                        const responseText = await response.text();
+                        this.addMessage('System', 'Incoming call request sent successfully');
+                        this.addMessage('System', 'Server response: XML received');
+                        
+                        // Step 2: Extract WebSocket URL and connect
+                        await this.connectToWebSocket();
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                } catch (error) {
+                    this.isConnecting = false;
+                    this.updateStatus('Connection Error', 'error');
+                    this.connectBtn.textContent = 'Start Call Simulation';
+                    this.connectBtn.disabled = false;
+                    this.addMessage('System', `Error: ${error.message}`);
+                }
+            }
+
+            async makeIncomingCallRequest() {
+                const serverUrl = this.serverUrlEl.value;
+                const callSid = this.callSidEl.value;
+                const callerNumber = this.callerNumberEl.value;
+
+                // Simulate call webhook data
+                const callData = {
+                    CallSid: callSid,
+                    CallFrom: callerNumber,
+                    CallTo: '09513886363',
+                    Direction: 'incoming',
+                    Created: new Date().toUTCString(),
+                    CallType: 'call-attempt',
+                    From: callerNumber,
+                    To: '09513886363',
+                    CurrentTime: new Date().toISOString()
+                };
+
+                this.addMessage('System', `Sending call request to: ${serverUrl}/incoming-call`);
+                this.addMessage('System', `Call data: ${JSON.stringify(callData, null, 2)}`);
+
+                const response = await fetch(`${serverUrl}/incoming-call`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(callData)
+                });
+
+                return response;
+            }
+
+            async connectToWebSocket() {
+                const serverUrl = this.serverUrlEl.value;
+                const wsProtocol = serverUrl.startsWith('https') ? 'wss' : 'ws';
+                const wsHost = serverUrl.replace(/^https?:\/\//, '');
+                this.wsUrl = `${wsProtocol}://${wsHost}/media-stream`;
+
+                this.addMessage('System', `Connecting to WebSocket: ${this.wsUrl}`);
+
+                return new Promise((resolve, reject) => {
+                    this.ws = new WebSocket(this.wsUrl);
+
+                    const timeout = setTimeout(() => {
+                        this.ws.close();
+                        reject(new Error('WebSocket connection timeout'));
+                    }, 10000);
+
+                    this.ws.onopen = () => {
+                        clearTimeout(timeout);
+                        this.isConnecting = false;
+                        this.updateStatus('Connected', 'connected');
+                        this.connectBtn.textContent = 'End Call';
+                        this.connectBtn.disabled = false;
+                        this.micBtn.disabled = false;
+                        this.sendBtn.disabled = false;
+                        
+                        this.addMessage('System', 'WebSocket connected successfully!');
+                        this.sendStartEvent();
+                        resolve();
+                    };
+
+                    this.ws.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            this.handleMessage(data);
+                        } catch (error) {
+                            console.error('Error parsing message:', error);
+                        }
+                    };
+
+                    this.ws.onclose = (event) => {
+                        clearTimeout(timeout);
+                        this.isConnecting = false;
+                        this.updateStatus('Disconnected', 'disconnected');
+                        this.connectBtn.textContent = 'Start Call Simulation';
+                        this.connectBtn.disabled = false;
+                        this.micBtn.disabled = true;
+                        this.sendBtn.disabled = true;
+                        
+                        this.addMessage('System', `WebSocket closed: ${event.reason || 'Unknown reason'}`);
+                    };
+
+                    this.ws.onerror = (error) => {
+                        clearTimeout(timeout);
+                        this.isConnecting = false;
+                        this.updateStatus('Connection Error', 'error');
+                        this.connectBtn.textContent = 'Start Call Simulation';
+                        this.connectBtn.disabled = false;
+                        this.micBtn.disabled = true;
+                        
+                        this.addMessage('System', 'WebSocket connection error');
+                        reject(error);
+                    };
+                });
+            }
+
+            sendStartEvent() {
+                const startEvent = {
+                    event: 'start',
+                    streamSid: 'test_stream_' + Date.now(),
+                    start: {
+                        streamSid: 'test_stream_' + Date.now(),
+                        callSid: this.callSidEl.value,
+                        customParameters: {
+                            callerNumber: this.callerNumberEl.value,
+                            firstMessage: 'Test call for Gagan Hospital AI'
+                        }
+                    }
+                };
+                
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify(startEvent));
+                    this.addMessage('System', 'Sent start event to WebSocket');
+                }
+            }
+
+            handleMessage(data) {
+                console.log('Received:', data);
+                
+                if (data.type === 'response.audio.delta') {
+                    // Handle audio response
+                    this.updateVisualizer(true);
+                } else if (data.type === 'response.text.delta') {
+                    // Handle text response
+                    if (data.delta) {
+                        this.updateAIMessage(data.delta);
+                    }
+                } else if (data.type === 'response.done') {
+                    // Response complete
+                    this.updateVisualizer(false);
+                } else if (data.type === 'conversation.item.input_audio_transcription.completed') {
+                    // User speech transcription
+                    if (data.transcript) {
+                        this.addMessage('You', data.transcript);
+                    }
+                }
+            }
+
+            sendTextMessage() {
+                const message = this.messageInputEl.value.trim();
+                if (!message) return;
+
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    const textMessage = {
+                        event: 'text',
+                        text: message
+                    };
+                    
+                    this.ws.send(JSON.stringify(textMessage));
+                    this.addMessage('You', message);
+                    this.messageInputEl.value = '';
+                    
+                    console.log('💬 Text message sent:', message);
+                } else {
+                    this.addMessage('System', 'Not connected to WebSocket');
+                }
+            }
+
+            async toggleRecording() {
+                if (this.isRecording) {
+                    this.stopRecording();
+                } else {
+                    await this.startRecording();
+                }
+            }
+
+            async startRecording() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    this.mediaRecorder = new MediaRecorder(stream);
+                    this.audioChunks = [];
+
+                    this.mediaRecorder.ondataavailable = (event) => {
+                        this.audioChunks.push(event.data);
+                    };
+
+                    this.mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                        this.sendAudioToWebSocket(audioBlob);
+                    };
+
+                    this.mediaRecorder.start(100); // Send chunks every 100ms
+                    this.isRecording = true;
+                    this.micBtn.classList.add('recording');
+                    this.micBtn.textContent = '🔴';
+                    this.updateVisualizer(true);
+                    
+                    this.addMessage('System', 'Recording started...');
+                } catch (error) {
+                    console.error('Error starting recording:', error);
+                    this.addMessage('System', 'Error: Could not access microphone');
+                }
+            }
+
+            stopRecording() {
+                if (this.mediaRecorder && this.isRecording) {
+                    this.mediaRecorder.stop();
+                    this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                    this.isRecording = false;
+                    this.micBtn.classList.remove('recording');
+                    this.micBtn.textContent = '🎤';
+                    this.updateVisualizer(false);
+                    
+                    this.addMessage('System', 'Recording stopped');
+                }
+            }
+
+            sendAudioToWebSocket(audioBlob) {
+                // Convert audio blob to base64
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64Audio = reader.result.split(',')[1];
+                    
+                    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                        const mediaEvent = {
+                            event: 'media',
+                            media: {
+                                payload: base64Audio
+                            }
+                        };
+                        
+                        this.ws.send(JSON.stringify(mediaEvent));
+                        console.log('Sent audio data');
+                    }
+                };
+                reader.readAsDataURL(audioBlob);
+            }
+
+            updateStatus(text, className) {
+                this.statusTextEl.textContent = text;
+                this.statusEl.className = `status ${className}`;
+            }
+
+            addMessage(sender, text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender.toLowerCase() === 'you' ? 'user' : sender.toLowerCase() === 'system' ? 'system' : 'ai'}`;
+                messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+                
+                this.messagesEl.appendChild(messageDiv);
+                this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
+            }
+
+            updateAIMessage(text) {
+                // Find the last AI message or create a new one
+                let lastMessage = this.messagesEl.querySelector('.message.ai:last-child');
+                if (!lastMessage) {
+                    this.addMessage('AI', '');
+                    lastMessage = this.messagesEl.querySelector('.message.ai:last-child');
+                }
+                
+                const contentEl = lastMessage.querySelector('strong').nextSibling;
+                if (contentEl) {
+                    contentEl.textContent += text;
+                } else {
+                    lastMessage.innerHTML += text;
+                }
+            }
+
+            endCall() {
+                if (this.ws) {
+                    this.ws.close();
+                    this.ws = null;
+                }
+                this.isConnecting = false;
+                this.updateStatus('Disconnected', 'disconnected');
+                this.connectBtn.textContent = 'Start Call Simulation';
+                this.connectBtn.disabled = false;
+                this.micBtn.disabled = true;
+                this.addMessage('System', 'Call ended');
+            }
+        }
+
+        // Initialize the UI when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const ui = new IntegratedTestUI();
+            
+            // Update connect button to end call when connected
+            document.getElementById('connectBtn').addEventListener('click', function() {
+                if (this.textContent === 'End Call') {
+                    ui.endCall();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

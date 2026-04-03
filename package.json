@@ -7,8 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "chat": "node test-mcp.js",
     "start": "node index.js",
-    "start:exotel": "node gagan-gpt-exotel.js",
-    "start:twilio": "node gagan-gpt-refactored.js",
+    "start:twilio": "node index-twilio.js",
     "db:init": "node database/init.js",
     "db:seed": "node database/seed.js"
   },
@@ -17,6 +16,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
     "@fastify/formbody": "^8.0.0",
     "@fastify/websocket": "^11.0.0",
     "@modelcontextprotocol/sdk": "^1.29.0",

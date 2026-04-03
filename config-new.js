@@ -1,7 +1,7 @@
 // Configuration for Gagan Hospital AI Assistant
 
 export const CONFIG = {
-    VOICE: 'nova',  // Softer, more natural voice for Indian accent
+    VOICE: 'alloy',  // Voice for AI responses
     PORT: process.env.PORT || 5051,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     OPENAI_REALTIME_URL: 'wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17',
@@ -35,13 +35,7 @@ Use the function \`cancel_appointment\` to cancel appointments.
 Remember: You're helping real patients with their healthcare needs. Be accurate and helpful.`;
 
 export const LOG_EVENT_TYPES = [
-    'response.content.done',
-    'rate_limits.updated',
     'response.done',
-    'input_audio_buffer.committed',
-    'input_audio_buffer.speech_stopped',
-    'input_audio_buffer.speech_started',
     'session.created',
-    'response.text.done',
     'conversation.item.input_audio_transcription.completed'
 ];
