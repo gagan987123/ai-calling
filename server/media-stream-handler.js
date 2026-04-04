@@ -84,11 +84,14 @@ export class MediaStreamHandler {
                         "Unknown",
                         {},
                     );
+                    this.sessionManager.updateSession(callSid, { streamSid });
                     onSessionResolved(callSid, fallbackSession);
                 } else {
                     console.log(
                         `✅ Found session ${callSid} for caller: ${resolvedSession.callerNumber}`,
                     );
+                    // Save streamSid so audio can be routed back to Twilio
+                    this.sessionManager.updateSession(callSid, { streamSid });
                     onSessionResolved(callSid, resolvedSession);
                 }
             } else if (data.event === "media") {
