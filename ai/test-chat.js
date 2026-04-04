@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
-import { testConnection } from './database/db.js';
-import MCPClient from './mcp/client.js';
-import AIOrchestrator from './ai/orchestrator-mcp.js';
+import { testConnection } from '../database/db.js';
+import MCPClient from '../mcp/client.js';
+import AIOrchestrator from './orchestrator-mcp.js';
 import readline from 'readline';
 
 dotenv.config();
