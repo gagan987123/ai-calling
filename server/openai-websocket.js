@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { CONFIG, SYSTEM_MESSAGE, LOG_EVENT_TYPES } from '../config-new.js';
+import { CONFIG, SYSTEM_MESSAGE, LOG_EVENT_TYPES } from '../config.js';
 
 export class OpenAIWebSocket {
     constructor(session, onMessage, onClose, onError) {

@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import fastifyFormBody from '@fastify/formbody';
 import fastifyWs from '@fastify/websocket';
 import { testConnection } from './database/db.js';
-import { CONFIG } from './config-new.js';
+import { CONFIG } from './config.js';
 import SessionManager from './server/session-manager.js';
 import TwilioHandler from './server/twilio-handler.js';
 import MediaStreamHandler from './server/media-stream-handler.js';

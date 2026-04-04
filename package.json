@@ -1,18 +1,19 @@
 {
-  "name": "openai-realtime-api",
+  "name": "ai-call-center",
   "version": "1.0.0",
-  "description": "",
+  "description": "Complete AI-powered call center",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "chat": "node test-mcp.js",
+    "chat": "node ai/test-chat.js",
     "start": "node index.js",
-    "start:twilio": "node index-twilio.js",
+    "start:twilio": "node index.js",
     "db:init": "node database/init.js",
-    "db:seed": "node database/seed.js"
+    "db:seed": "node database/seed.js",
+    "test:call": "node test/make-call.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["ai", "voice", "twilio", "openai", "medical", "receptionist"],
+  "author": "Gagandeep Singh",
   "license": "ISC",
   "type": "module",
   "dependencies": {

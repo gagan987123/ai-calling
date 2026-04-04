@@ -30,13 +30,13 @@ if (process.env.DATABASE_URL) {
     ssl: false // Disable SSL for local/testing databases
   };
 } else {
-  // Use individual environment variables
+  // Use individual environment variables (matching MCP client)
   poolConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || DEFAULT_DB_PORT,
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'password',
-    database: process.env.DB_NAME || 'heliumdb',
+    host: process.env.PGHOST || 'localhost',
+    port: process.env.PGPORT || DEFAULT_DB_PORT,
+    user: process.env.PGUSER || 'postgres',
+    password: process.env.PGPASSWORD || 'password',
+    database: process.env.PGDATABASE || 'gagan_hospital',
     max: DEFAULT_POOL_MAX,
     idleTimeoutMillis: DEFAULT_IDLE_TIMEOUT,
     connectionTimeoutMillis: DEFAULT_CONNECTION_TIMEOUT,
