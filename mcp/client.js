@@ -21,6 +21,15 @@ export class MCPClient {
     this.transport = new StdioClientTransport({
       command: 'node',
       args: [serverPath],
+      env: {
+        ...process.env,
+        DATABASE_URL: process.env.DATABASE_URL,
+        PGHOST: process.env.PGHOST,
+        PGPORT: process.env.PGPORT,
+        PGUSER: process.env.PGUSER,
+        PGPASSWORD: process.env.PGPASSWORD,
+        PGDATABASE: process.env.PGDATABASE,
+      },
     });
 
     this.client = new Client(
