@@ -1,7 +1,7 @@
 import pkg from 'twilio';
 const { Twilio } = pkg;
 import dotenv from 'dotenv';
-dotenv.config({ path: '.env.twilio' });
+dotenv.config();
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
