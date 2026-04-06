@@ -4,7 +4,7 @@ This is a **production-ready AI-powered call center SaaS platform** that provide
 
 ## 🎯 **Complete SaaS Call Center Features**
 
-### � **Business Functionality**
+### **Business Functionality**
 - **🤖 AI Receptionist**: Natural voice conversations with customers
 - **🌍 Multilingual Support**: English, Spanish, Hindi, and 50+ languages
 - **📅 Appointment Management**: Book, check, and cancel appointments automatically
